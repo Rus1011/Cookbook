@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кулинарная книга</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f0e8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #d45a2b;
+            margin-bottom: 10px;
+            font-size: 36px;
+        }
+        .sub {
+            text-align: center;
+            color: #7a5a4a;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .search-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .search-field {
+            flex: 1;
+            min-width: 250px;
+        }
+        .search-field label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #b45a2b;
+            font-size: 14px;
+        }
+        .search-field input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-search {
+            background: #d45a2b;
+            color: white;
+        }
+        .btn-search:hover {
+            background: #b84a1f;
+        }
+        .btn-reset {
+            background: #e0d5c8;
+            color: #5a3e2a;
+        }
+        .btn-reset:hover {
+            background: #d0c0ae;
+        }
+        .stats {
+            margin-top: 15px;
+            color: #7a5a4a;
+            text-align: right;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .recipes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: #fff0e4;
+            padding: 20px;
+            border-bottom: 2px solid #ffe0cc;
+        }
+        .card-header h2 {
+            color: #d45a2b;
+            font-size: 22px;
+        }
+        .ingredients {
+            padding: 15px 20px;
+            background: #fefaf5;
+            border-bottom: 1px solid #eee;
+        }
+        .ingredients h3 {
+            font-size: 14px;
+            color: #b45a2b;
+            margin-bottom: 10px;
+        }
+        .ingredient-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .ingredient {
+            background: #f0e4d8;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #5a3e2a;
+        }
+        .steps {
+            padding: 15px 20px 20px;
+        }
+        .steps h3 {
+            font-size: 14px;
+            color: #b45a2b;
+            margin-bottom: 10px;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #4a3520;
+            line-height: 1.4;
+        }
+        .empty {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 16px;
+            color: #aa8a6a;
+            font-size: 18px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #aa8a6a;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📖 Кулинарная книга</h1>
+    <div class="sub">Вкусные рецепты на каждый день</div>
+
+    <div class="search-box">
+        <div class="search-row">
+            <div class="search-field">
+                <label> Поиск по названию</label>
+                <input type="text" id="searchInput" placeholder="Например: борщ, салат, суп, брауни...">
+            </div>
+            <div class="buttons">
+                <button class="btn-search" id="searchBtn">Найти</button>
+                <button class="btn-reset" id="resetBtn">Сбросить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="recipes" id="recipesContainer"></div>
+</div>
+
+<script>
+    // Рецепты с ингредиентами и шагами
+    const recipes = [
+        {
+            name: "Борщ классический",
+            ingredients: ["свекла", "капуста", "картофель", "морковь", "лук", "томатная паста", "говядина", "чеснок"],
+            steps: [
+                "Сварить говяжий бульон, процедить.",
+                "Нарезать свеклу, морковь и лук, обжарить с томатной пастой.",
+                "Добавить в бульон картофель, через 10 минут - капусту.",
+                "Добавить зажарку, варить до готовности.",
+                "Добавить чеснок и зелень, дать настояться."
+            ]
+        },
+        {
+            name: "Цезарь с курицей",
+            ingredients: ["куриное филе", "салат романо", "пармезан", "сухари", "яйца", "оливковое масло", "чеснок", "лимон"],
+            steps: [
+                "Куриное филе обжарить до золотистости, нарезать.",
+                "Приготовить соус: желтки, масло, чеснок, лимонный сок.",
+                "Выложить листья салата, добавить сухари, курицу.",
+                "Полить соусом, посыпать тертым пармезаном."
+            ]
+        },
+        {
+            name: "Плов с курицей",
+            ingredients: ["рис", "курица", "морковь", "лук", "чеснок", "куркума", "растительное масло", "соль"],
+            steps: [
+                "Обжарить курицу с луком и морковью.",
+                "Добавить промытый рис, залить кипятком.",
+                "Добавить специи, целую головку чеснока.",
+                "Томить под крышкой 25 минут.",
+                "Перемешать, дать настояться."
+            ]
+        },
+        {
+            name: "Оливье",
+            ingredients: ["картофель", "морковь", "яйца", "колбаса", "огурцы соленые", "горошек", "майонез"],
+            steps: [
+                "Отварить картофель, морковь, яйца.",
+                "Нарезать все ингредиенты кубиками.",
+                "Добавить горошек и майонез.",
+                "Перемешать и охладить."
+            ]
+        },
+        {
+            name: "Шоколадный брауни",
+            ingredients: ["шоколад", "сливочное масло", "сахар", "яйца", "мука", "орехи"],
+            steps: [
+                "Растопить шоколад с маслом.",
+                "Взбить яйца с сахаром, смешать с шоколадом.",
+                "Добавить муку и орехи.",
+                "Выпекать 25 минут при 180°C."
+            ]
+        },
+        {
+            name: "Сырный суп с грибами",
+            ingredients: ["шампиньоны", "картофель", "морковь", "лук", "плавленый сыр", "сливки", "зелень"],
+            steps: [
+                "Обжарить грибы с луком и морковью.",
+                "Сварить картофель, добавить зажарку.",
+                "Добавить плавленый сыр, размешать до растворения.",
+                "Влить сливки, добавить зелень."
+            ]
+        },
+        {
+            name: "Греческий салат",
+            ingredients: ["помидоры", "огурцы", "перец", "лук", "маслины", "фета", "оливковое масло", "орегано"],
+            steps: [
+                "Нарезать овощи крупными кусками.",
+                "Добавить маслины и кубики феты.",
+                "Заправить маслом, посыпать орегано.",
+                "Аккуратно перемешать."
+            ]
+        },
+        {
+            name: "Куриная лапша",
+            ingredients: ["курица", "лапша", "морковь", "лук", "чеснок", "зелень", "соль", "перец"],
+            steps: [
+                "Сварить куриный бульон, мясо отделить.",
+                "Добавить нарезанную морковь и лук.",
+                "Положить лапшу, варить 5 минут.",
+                "Вернуть мясо, добавить зелень и чеснок."
+            ]
+        }
+    ];
+
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const recipesContainer = document.getElementById('recipesContainer');
+    const statsSpan = document.getElementById('stats');
+
+    function renderRecipes(recipesToShow) {
+        if (recipesToShow.length === 0) {
+            recipesContainer.innerHTML = '<div class="empty"> Ничего не найдено<br>Попробуйте другое название</div>';
+            return;
+        }
+
+        let html = '';
+        for (let i = 0; i < recipesToShow.length; i++) {
+            const r = recipesToShow[i];
+            html += `
+                <div class="card">
+                    <div class="card-header">
+                        <h2>${r.name}</h2>
+                    </div>
+                    <div class="ingredients">
+                        <h3> Ингредиенты:</h3>
+                        <div class="ingredient-list">
+            `;
+            for (let j = 0; j < r.ingredients.length; j++) {
+                html += `<span class="ingredient">${r.ingredients[j]}</span>`;
+            }
+            html += `
+                        </div>
+                    </div>
+                    <div class="steps">
+                        <h3> Приготовление:</h3>
+                        <ol>
+            `;
+            for (let k = 0; k < r.steps.length; k++) {
+                html += `<li>${r.steps[k]}</li>`;
+            }
+            html += `
+                        </ol>
+                    </div>
+                </div>
+            `;
+        }
+        recipesContainer.innerHTML = html;
+    }
+
+    function filterRecipes() {
+        const query = searchInput.value.trim().toLowerCase();
+        
+        let filtered;
+        if (query === "") {
+            filtered = recipes;
+        } else {
+            filtered = recipes.filter(function(recipe) {
+                return recipe.name.toLowerCase().includes(query);
+            });
+        }
+        
+        renderRecipes(filtered);
+        statsSpan.textContent = "Найдено рецептов: " + filtered.length;
+    }
+
+    function resetSearch() {
+        searchInput.value = "";
+        renderRecipes(recipes);
+        statsSpan.textContent = "Найдено рецептов: " + recipes.length;
+    }
+
+    searchBtn.addEventListener('click', filterRecipes);
+    resetBtn.addEventListener('click', resetSearch);
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            filterRecipes();
+        }
+    });
+
+    renderRecipes(recipes);
+    statsSpan.textContent = "Найдено рецептов: " + recipes.length;
+</script>
+</body>
+</html>
